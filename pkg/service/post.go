@@ -3,6 +3,7 @@ package service
 import (
 	"errors"
 	"fmt"
+	"log"
 
 	"github.com/raphael-foliveira/blog-backend/pkg/interfaces"
 	"github.com/raphael-foliveira/blog-backend/pkg/models"
@@ -10,44 +11,44 @@ import (
 )
 
 type Post struct {
-	repository    interfaces.Repository[models.Post]
-	authorService *Author
+	repository       interfaces.Repository[models.Post]
+	authorRepository interfaces.Repository[models.Author]
 }
 
-func NewPostService(repository interfaces.Repository[models.Post], authorService *Author) *Post {
-	return &Post{repository, authorService}
+func NewPostService(repository interfaces.Repository[models.Post], authorRepository interfaces.Repository[models.Author]) *Post {
+	return &Post{repository, authorRepository}
 }
 
-func (ps *Post) Find() ([]schemas.Post, error) {
+func (ps *Post) Find() ([]*schemas.Post, error) {
 	posts, err := ps.repository.Find()
 	if err != nil {
 		return nil, err
 	}
-	postsDto := []schemas.Post{}
+	postsDto := []*schemas.Post{}
 	for _, post := range posts {
 		postsDto = append(postsDto, ps.modelToSchema(post))
 	}
 	return postsDto, nil
 }
 
-func (ps *Post) FindOne(id int64) (schemas.PostDetail, error) {
+func (ps *Post) FindOne(id int64) (*schemas.PostDetail, error) {
 	post, err := ps.repository.FindOne(id)
 	if err != nil {
-		return schemas.PostDetail{}, err
+		return nil, err
 	}
-	author, err := ps.authorService.FindOne(post.AuthorId)
+	author, err := ps.authorRepository.FindOne(post.AuthorId)
 	if err != nil {
-		return schemas.PostDetail{}, err
+		return nil, err
 	}
-	return ps.modelToSchemaDetail(post, author.Author), nil
+	return ps.modelToSchemaDetail(post, author), nil
 }
 
-func (ps *Post) FindByAuthor(authorId int64) ([]schemas.Post, error) {
+func (ps *Post) FindByAuthor(authorId int64) ([]*schemas.Post, error) {
 	posts, err := ps.repository.Find(fmt.Sprintf("author_id = %v", authorId))
 	if err != nil {
 		return nil, err
 	}
-	postsDto := []schemas.Post{}
+	postsDto := []*schemas.Post{}
 	for _, post := range posts {
 		postsDto = append(postsDto, ps.modelToSchema(post))
 	}
@@ -56,8 +57,9 @@ func (ps *Post) FindByAuthor(authorId int64) ([]schemas.Post, error) {
 
 func (ps *Post) Create(schema *schemas.PostCreate) (*schemas.Post, error) {
 	newPost, err := ps.repository.Create(&models.Post{
-		Title:   schema.Title,
-		Content: schema.Content,
+		Title:    schema.Title,
+		Content:  schema.Content,
+		AuthorId: schema.AuthorId,
 	})
 	if err != nil {
 		return nil, err
@@ -69,11 +71,13 @@ func (ps *Post) Create(schema *schemas.PostCreate) (*schemas.Post, error) {
 	}, nil
 }
 
-func (ps *Post) Update(schema *schemas.PostUpdate) (*schemas.Post, error) {
+func (ps *Post) Update(id int64, postUpdate *schemas.PostUpdate) (*schemas.Post, error) {
 	updatedPost, err := ps.repository.Update(&models.Post{
-		Title:   schema.Title,
-		Content: schema.Content,
+		Id:      id,
+		Title:   postUpdate.Title,
+		Content: postUpdate.Content,
 	})
+	log.Println(postUpdate)
 	if err != nil {
 		return nil, err
 	}
@@ -95,17 +99,21 @@ func (ps *Post) Delete(id int64) error {
 	return nil
 }
 
-func (ps *Post) modelToSchema(model *models.Post) schemas.Post {
-	return schemas.Post{
+func (ps *Post) modelToSchema(model *models.Post) *schemas.Post {
+	return &schemas.Post{
 		Id:      model.Id,
 		Title:   model.Title,
 		Content: model.Content,
 	}
 }
 
-func (ps *Post) modelToSchemaDetail(model *models.Post, author schemas.Author) schemas.PostDetail {
-	return schemas.PostDetail{
-		Post:   ps.modelToSchema(model),
-		Author: author,
+func (ps *Post) modelToSchemaDetail(model *models.Post, author *models.Author) *schemas.PostDetail {
+	return &schemas.PostDetail{
+		Post: *ps.modelToSchema(model),
+		Author: schemas.Author{
+			Id:          author.Id,
+			Name:        author.Name,
+			ActiveSince: author.ActiveSince.Time,
+		},
 	}
 }

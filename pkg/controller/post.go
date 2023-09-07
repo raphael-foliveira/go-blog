@@ -44,8 +44,9 @@ func (pc *Post) Create(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (pc *Post) Update(w http.ResponseWriter, r *http.Request) error {
+	id := parseId(w, r)
 	updateSchema := pc.parseUpdate(w, r)
-	updatedPost, err := pc.service.Update(updateSchema)
+	updatedPost, err := pc.service.Update(id, updateSchema)
 	if err != nil {
 		return err
 	}

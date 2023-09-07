@@ -3,7 +3,7 @@ package res
 import "net/http"
 
 type httpError struct {
-	Error string
+	Error string `json:"error"`
 }
 
 func NotFound(w http.ResponseWriter, message string) error {
