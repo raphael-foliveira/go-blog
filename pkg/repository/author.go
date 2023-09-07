@@ -59,9 +59,7 @@ func (ar *Author) Delete(id int64) (int64, error) {
 
 func (ar *Author) scanOne(row *sql.Rows) (*models.Author, error) {
 	for row.Next() {
-		author := models.Author{}
-		err := row.Scan(&author.Id, &author.Name, &author.ActiveSince)
-		return &author, err
+		return ar.scanSingle(row)
 	}
 	return nil, errors.New("no rows")
 }
@@ -69,12 +67,17 @@ func (ar *Author) scanOne(row *sql.Rows) (*models.Author, error) {
 func (ar *Author) scanMany(rows *sql.Rows) ([]*models.Author, error) {
 	authors := []*models.Author{}
 	for rows.Next() {
-		author := models.Author{}
-		err := rows.Scan(&author.Id, &author.Name, &author.ActiveSince)
+		author, err := ar.scanSingle(rows)
 		if err != nil {
 			return nil, err
 		}
-		authors = append(authors, &author)
+		authors = append(authors, author)
 	}
 	return authors, nil
+}
+
+func (ar *Author) scanSingle(rows *sql.Rows) (*models.Author, error) {
+	author := models.Author{}
+	err := rows.Scan(&author.Id, &author.Name, &author.ActiveSince)
+	return &author, err
 }
