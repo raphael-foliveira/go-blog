@@ -5,7 +5,12 @@ import (
 	"github.com/raphael-foliveira/blog-backend/pkg/controller"
 )
 
-func Post(controller *controller.Post) *chi.Mux {
+func Post(controller *controller.Post) (string, *chi.Mux) {
 	router := chi.NewRouter()
-	return router
+	router.Get("/", wrapHandler(controller.Find))
+	router.Post("/", wrapHandler(controller.Create))
+	router.Get("/{id}", wrapHandler(controller.FindOne))
+	router.Put("/{id}", wrapHandler(controller.Update))
+	router.Delete("/{id}", wrapHandler(controller.Delete))
+	return "/posts", router
 }

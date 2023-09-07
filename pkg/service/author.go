@@ -3,6 +3,7 @@ package service
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/raphael-foliveira/blog-backend/pkg/interfaces"
@@ -11,12 +12,12 @@ import (
 )
 
 type Author struct {
-	repository  interfaces.Repository[models.Author]
-	postService *Post
+	repository     interfaces.Repository[models.Author]
+	postRepository interfaces.Repository[models.Post]
 }
 
-func NewAuthorService(repository interfaces.Repository[models.Author], postService *Post) *Author {
-	return &Author{repository, postService}
+func NewAuthorService(repository interfaces.Repository[models.Author], postRepository interfaces.Repository[models.Post]) *Author {
+	return &Author{repository, postRepository}
 }
 
 func (as *Author) Find() ([]*schemas.Author, error) {
@@ -36,7 +37,7 @@ func (as *Author) FindOne(id int64) (*schemas.AuthorDetail, error) {
 	if err != nil {
 		return nil, err
 	}
-	posts, err := as.postService.FindByAuthor(author.Id)
+	posts, err := as.postRepository.Find(fmt.Sprintf("author_id = %v", author.Id))
 
 	return as.modelToSchemaDetail(author, posts), nil
 }
@@ -90,9 +91,18 @@ func (as *Author) modelToSchema(model *models.Author) *schemas.Author {
 	}
 }
 
-func (as *Author) modelToSchemaDetail(model *models.Author, posts []schemas.Post) *schemas.AuthorDetail {
-	return &schemas.AuthorDetail{
+func (as *Author) modelToSchemaDetail(model *models.Author, posts []*models.Post) *schemas.AuthorDetail {
+	author := &schemas.AuthorDetail{
 		Author: *as.modelToSchema(model),
-		Posts:  posts,
 	}
+	for _, post := range posts {
+		author.Posts = append(author.Posts, schemas.Post{
+			Id:        post.Id,
+			Title:     post.Title,
+			Content:   post.Content,
+			CreatedAt: post.CreatedAt,
+			UpdatedAt: post.UpdatedAt,
+		})
+	}
+	return author
 }
