@@ -38,6 +38,7 @@ func attachMiddleware(r *chi.Mux) {
 func startRoutes() *chi.Mux {
 	router := chi.NewRouter()
 	attachMiddleware(router)
+	injectDependencies(router)
 	return router
 }
 
