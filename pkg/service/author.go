@@ -96,6 +96,7 @@ func (as *Author) modelToSchema(model *models.Author) *schemas.Author {
 func (as *Author) modelToSchemaDetail(model *models.Author, posts []*models.Post) *schemas.AuthorDetail {
 	author := &schemas.AuthorDetail{
 		Author: *as.modelToSchema(model),
+		Posts:  []schemas.Post{},
 	}
 	for _, post := range posts {
 		author.Posts = append(author.Posts, schemas.Post{
