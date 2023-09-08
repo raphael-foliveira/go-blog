@@ -14,7 +14,7 @@ type healthCheckResponse struct {
 func HealthCheck() (string, *chi.Mux) {
 	router := chi.NewRouter()
 	router.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		res.JSON(w, http.StatusOK, healthCheckResponse{"ok"})
+		res.New(w).Status(http.StatusOK).JSON(healthCheckResponse{"ok"})
 	})
 	return "/", router
 }

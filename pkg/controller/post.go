@@ -22,7 +22,7 @@ func (pc *Post) Find(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		return err
 	}
-	return res.JSON(w, http.StatusOK, posts)
+	return res.New(w).Status(http.StatusOK).JSON(posts)
 }
 
 func (pc *Post) FindOne(w http.ResponseWriter, r *http.Request) error {
@@ -31,7 +31,7 @@ func (pc *Post) FindOne(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		return err
 	}
-	return res.JSON(w, http.StatusOK, post)
+	return res.New(w).Status(http.StatusOK).JSON(post)
 }
 
 func (pc *Post) Create(w http.ResponseWriter, r *http.Request) error {
@@ -40,7 +40,7 @@ func (pc *Post) Create(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		return err
 	}
-	return res.JSON(w, http.StatusCreated, newPost)
+	return res.New(w).Status(http.StatusCreated).JSON(newPost)
 }
 
 func (pc *Post) Update(w http.ResponseWriter, r *http.Request) error {
@@ -50,14 +50,14 @@ func (pc *Post) Update(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		return err
 	}
-	return res.JSON(w, http.StatusOK, updatedPost)
+	return res.New(w).Status(http.StatusOK).JSON(updatedPost)
 }
 
 func (pc *Post) Delete(w http.ResponseWriter, r *http.Request) error {
 	id := parseId(w, r)
 	err := pc.service.Delete(id)
 	if err != nil {
-		res.InternalServerError(w, err.Error())
+		res.New(w).InternalServerError(err.Error())
 	}
 	return res.SendStatus(w, http.StatusNoContent)
 }
@@ -67,7 +67,7 @@ func (pc *Post) parseCreate(w http.ResponseWriter, r *http.Request) *schemas.Pos
 	schema := new(schemas.PostCreate)
 	err := json.NewDecoder(r.Body).Decode(schema)
 	if err != nil {
-		res.BadRequest(w, "invalid request body")
+		res.New(w).BadRequestError("invalid request body")
 	}
 	return schema
 }
@@ -77,7 +77,7 @@ func (pc *Post) parseUpdate(w http.ResponseWriter, r *http.Request) *schemas.Pos
 	schema := new(schemas.PostUpdate)
 	err := json.NewDecoder(r.Body).Decode(schema)
 	if err != nil {
-		res.BadRequest(w, "invalid request body")
+		res.New(w).BadRequestError("invalid request body")
 	}
 	return schema
 }

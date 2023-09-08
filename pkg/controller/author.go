@@ -22,16 +22,16 @@ func (ac *Author) Find(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		return err
 	}
-	return res.JSON(w, http.StatusOK, authors)
+	return res.New(w).Status(http.StatusOK).JSON(authors)
 }
 
 func (ac *Author) FindOne(w http.ResponseWriter, r *http.Request) error {
 	id := parseId(w, r)
 	author, err := ac.service.FindOne(id)
 	if err != nil {
-		return res.NotFound(w, "author not found")
+		return res.New(w).NotFoundError("author not found")
 	}
-	return res.JSON(w, http.StatusOK, author)
+	return res.New(w).Status(http.StatusOK).JSON(author)
 }
 
 func (ac *Author) Create(w http.ResponseWriter, r *http.Request) error {
@@ -40,21 +40,21 @@ func (ac *Author) Create(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		return err
 	}
-	return res.JSON(w, http.StatusCreated, newAuthor)
+	return res.New(w).Status(http.StatusCreated).JSON(newAuthor)
 }
 
 func (ac *Author) Update(w http.ResponseWriter, r *http.Request) error {
 	id := parseId(w, r)
 	_, err := ac.service.FindOne(id)
 	if err != nil {
-		return res.NotFound(w, "author not found")
+		return res.New(w).NotFoundError("author not found")
 	}
 	schema := ac.parseUpdate(w, r)
 	updatedAuthor, err := ac.service.Update(id, schema)
 	if err != nil {
 		return err
 	}
-	return res.JSON(w, http.StatusOK, updatedAuthor)
+	return res.New(w).Status(http.StatusOK).JSON(updatedAuthor)
 }
 
 func (ac *Author) Delete(w http.ResponseWriter, r *http.Request) error {
@@ -71,7 +71,7 @@ func (ac *Author) parseCreate(w http.ResponseWriter, r *http.Request) *schemas.A
 	schema := new(schemas.AuthorCreate)
 	err := json.NewDecoder(r.Body).Decode(schema)
 	if err != nil {
-		res.BadRequest(w, err.Error())
+		res.New(w).BadRequestError(err.Error())
 	}
 	return schema
 }
@@ -81,7 +81,7 @@ func (ac *Author) parseUpdate(w http.ResponseWriter, r *http.Request) *schemas.A
 	schema := new(schemas.AuthorUpdate)
 	err := json.NewDecoder(r.Body).Decode(schema)
 	if err != nil {
-		res.BadRequest(w, err.Error())
+		res.New(w).BadRequestError(err.Error())
 	}
 	return schema
 }
