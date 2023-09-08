@@ -10,7 +10,7 @@ func wrapHandler(fn func(http.ResponseWriter, *http.Request) error) http.Handler
 	return func(w http.ResponseWriter, r *http.Request) {
 		err := fn(w, r)
 		if err != nil {
-			res.InternalServerError(w, err.Error())
+			res.New(w).InternalServerError(err.Error())
 		}
 	}
 }

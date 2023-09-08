@@ -23,65 +23,65 @@ func (ac *Author) Find(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		return err
 	}
-	return res.JSON(w, http.StatusOK, authors)
+	return res.New(w).Status(http.StatusOK).JSON(authors)
 }
 
 func (ac *Author) FindOne(w http.ResponseWriter, r *http.Request) error {
 	id, err := parseId(r)
 	if err != nil {
-		return res.BadRequest(w, err.Error())
+		return res.New(w).BadRequestError(err.Error())
 	}
 	author, err := ac.service.FindOne(id)
 	if err != nil {
-		return res.NotFound(w, "author not found")
+		return res.New(w).NotFoundError("author not found")
 	}
-	return res.JSON(w, http.StatusOK, author)
+	return res.New(w).Status(http.StatusOK).JSON(author)
 }
 
 func (ac *Author) Create(w http.ResponseWriter, r *http.Request) error {
 	schema, err := ac.parseCreate(r)
 	if err != nil {
-		return res.BadRequest(w, err.Error())
+		return res.New(w).BadRequestError(err.Error())
 	}
 	err = schema.Validate()
 	if err != nil {
-		return res.BadRequest(w, err.Error())
+		return res.New(w).BadRequestError(err.Error())
 	}
 	newAuthor, err := ac.service.Create(schema)
 	if err != nil {
 		return err
 	}
-	return res.JSON(w, http.StatusCreated, newAuthor)
+	return res.New(w).Status(http.StatusCreated).JSON(newAuthor)
 }
 
 func (ac *Author) Update(w http.ResponseWriter, r *http.Request) error {
 	id, err := parseId(r)
 	if err != nil {
-		return res.BadRequest(w, err.Error())
+		return res.New(w).BadRequestError(err.Error())
 	}
 	_, err = ac.service.FindOne(id)
 	if err != nil {
-		return res.NotFound(w, "author not found")
+		return res.New(w).NotFoundError("author not found")
 	}
 	schema, err := ac.parseUpdate(r)
 	if err != nil {
-		return res.BadRequest(w, err.Error())
+		return res.New(w).BadRequestError(err.Error())
 	}
 	err = schema.Validate()
 	if err != nil {
-		return res.BadRequest(w, err.Error())
+		return res.New(w).BadRequestError(err.Error())
 	}
 	updatedAuthor, err := ac.service.Update(id, schema)
 	if err != nil {
 		return err
 	}
-	return res.JSON(w, http.StatusOK, updatedAuthor)
+	return res.New(w).Status(http.StatusOK).JSON(updatedAuthor)
 }
 
 func (ac *Author) Delete(w http.ResponseWriter, r *http.Request) error {
 	id, err := parseId(r)
 	if err != nil {
-		return res.BadRequest(w, err.Error())
+		return res.New(w).BadRequestError(err.Error())
 	}
 	err = ac.service.Delete(id)
 	if err != nil {

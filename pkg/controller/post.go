@@ -23,65 +23,65 @@ func (pc *Post) Find(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		return err
 	}
-	return res.JSON(w, http.StatusOK, posts)
+	return res.New(w).Status(http.StatusOK).JSON(posts)
 }
 
 func (pc *Post) FindOne(w http.ResponseWriter, r *http.Request) error {
 	id, err := parseId(r)
 	if err != nil {
-		return res.BadRequest(w, err.Error())
+		return res.New(w).BadRequestError(err.Error())
 	}
 	post, err := pc.service.FindOne(id)
 	if err != nil {
 		return err
 	}
-	return res.JSON(w, http.StatusOK, post)
+	return res.New(w).Status(http.StatusOK).JSON(post)
 }
 
 func (pc *Post) Create(w http.ResponseWriter, r *http.Request) error {
 	schema, err := pc.parseCreate(r)
 	if err != nil {
-		return res.BadRequest(w, err.Error())
+		return res.New(w).BadRequestError(err.Error())
 	}
 	err = schema.Validate()
 	if err != nil {
-		return res.BadRequest(w, err.Error())
+		return res.New(w).BadRequestError(err.Error())
 	}
 	newPost, err := pc.service.Create(schema)
 	if err != nil {
 		return err
 	}
-	return res.JSON(w, http.StatusCreated, newPost)
+	return res.New(w).Status(http.StatusCreated).JSON(newPost)
 }
 
 func (pc *Post) Update(w http.ResponseWriter, r *http.Request) error {
 	id, err := parseId(r)
 	if err != nil {
-		return res.BadRequest(w, err.Error())
+		return res.New(w).BadRequestError(err.Error())
 	}
 	schema, err := pc.parseUpdate(r)
 	if err != nil {
-		return res.BadRequest(w, err.Error())
+		return res.New(w).BadRequestError(err.Error())
 	}
 	err = schema.Validate()
 	if err != nil {
-		return res.BadRequest(w, err.Error())
+		return res.New(w).BadRequestError(err.Error())
 	}
 	updatedPost, err := pc.service.Update(id, schema)
 	if err != nil {
 		return err
 	}
-	return res.JSON(w, http.StatusOK, updatedPost)
+	return res.New(w).Status(http.StatusOK).JSON(updatedPost)
 }
 
 func (pc *Post) Delete(w http.ResponseWriter, r *http.Request) error {
 	id, err := parseId(r)
 	if err != nil {
-		return res.BadRequest(w, err.Error())
+		return res.New(w).BadRequestError(err.Error())
 	}
 	err = pc.service.Delete(id)
 	if err != nil {
-		res.InternalServerError(w, err.Error())
+		res.New(w).InternalServerError(err.Error())
 	}
 	return res.SendStatus(w, http.StatusNoContent)
 }
