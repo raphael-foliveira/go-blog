@@ -2,6 +2,7 @@ package controller
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 
 	"github.com/raphael-foliveira/blog-backend/pkg/res"
@@ -26,7 +27,10 @@ func (pc *Post) Find(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (pc *Post) FindOne(w http.ResponseWriter, r *http.Request) error {
-	id := parseId(w, r)
+	id, err := parseId(r)
+	if err != nil {
+		return res.BadRequest(w, err.Error())
+	}
 	post, err := pc.service.FindOne(id)
 	if err != nil {
 		return err
@@ -35,7 +39,10 @@ func (pc *Post) FindOne(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (pc *Post) Create(w http.ResponseWriter, r *http.Request) error {
-	createSchema := pc.parseCreate(w, r)
+	createSchema, err := pc.parseCreate(r)
+	if err != nil {
+		return res.BadRequest(w, err.Error())
+	}
 	newPost, err := pc.service.Create(createSchema)
 	if err != nil {
 		return err
@@ -44,8 +51,14 @@ func (pc *Post) Create(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (pc *Post) Update(w http.ResponseWriter, r *http.Request) error {
-	id := parseId(w, r)
-	updateSchema := pc.parseUpdate(w, r)
+	id, err := parseId(r)
+	if err != nil {
+		return res.BadRequest(w, err.Error())
+	}
+	updateSchema, err := pc.parseUpdate(r)
+	if err != nil {
+		return res.BadRequest(w, err.Error())
+	}
 	updatedPost, err := pc.service.Update(id, updateSchema)
 	if err != nil {
 		return err
@@ -54,30 +67,33 @@ func (pc *Post) Update(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (pc *Post) Delete(w http.ResponseWriter, r *http.Request) error {
-	id := parseId(w, r)
-	err := pc.service.Delete(id)
+	id, err := parseId(r)
+	if err != nil {
+		return res.BadRequest(w, err.Error())
+	}
+	err = pc.service.Delete(id)
 	if err != nil {
 		res.InternalServerError(w, err.Error())
 	}
 	return res.SendStatus(w, http.StatusNoContent)
 }
 
-func (pc *Post) parseCreate(w http.ResponseWriter, r *http.Request) *schemas.PostCreate {
+func (pc *Post) parseCreate(r *http.Request) (*schemas.PostCreate, error) {
 	defer r.Body.Close()
 	schema := new(schemas.PostCreate)
 	err := json.NewDecoder(r.Body).Decode(schema)
 	if err != nil {
-		res.BadRequest(w, "invalid request body")
+		return nil, errors.New("error parsing request body")
 	}
-	return schema
+	return schema, nil
 }
 
-func (pc *Post) parseUpdate(w http.ResponseWriter, r *http.Request) *schemas.PostUpdate {
+func (pc *Post) parseUpdate(r *http.Request) (*schemas.PostUpdate, error) {
 	defer r.Body.Close()
 	schema := new(schemas.PostUpdate)
 	err := json.NewDecoder(r.Body).Decode(schema)
 	if err != nil {
-		res.BadRequest(w, "invalid request body")
+		return nil, errors.New("error parsing request body")
 	}
-	return schema
+	return schema, nil
 }
