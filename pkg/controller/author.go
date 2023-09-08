@@ -43,6 +43,10 @@ func (ac *Author) Create(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		return res.BadRequest(w, err.Error())
 	}
+	err = schema.Validate()
+	if err != nil {
+		return res.BadRequest(w, err.Error())
+	}
 	newAuthor, err := ac.service.Create(schema)
 	if err != nil {
 		return err
@@ -60,6 +64,10 @@ func (ac *Author) Update(w http.ResponseWriter, r *http.Request) error {
 		return res.NotFound(w, "author not found")
 	}
 	schema, err := ac.parseUpdate(r)
+	if err != nil {
+		return res.BadRequest(w, err.Error())
+	}
+	err = schema.Validate()
 	if err != nil {
 		return res.BadRequest(w, err.Error())
 	}

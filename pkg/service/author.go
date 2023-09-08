@@ -44,18 +44,33 @@ func (as *Author) FindOne(id int64) (*schemas.AuthorDetail, error) {
 	return as.modelToSchemaDetail(author, posts), nil
 }
 
-func (as *Author) Create(authorCreate *schemas.AuthorCreate) (schemas.Author, error) {
+func (as *Author) Create(schema *schemas.AuthorCreate) (*schemas.Author, error) {
 	author, err := as.repository.Create(&models.Author{
-		Name:        authorCreate.Name,
+		Name:        schema.Name,
 		ActiveSince: sql.NullTime{Time: time.Now()},
 	})
 	if err != nil {
-		return schemas.Author{}, err
+		return nil, err
 	}
-	return schemas.Author{
+	return &schemas.Author{
 		Id:          author.Id,
 		Name:        author.Name,
 		ActiveSince: author.ActiveSince.Time,
+	}, nil
+}
+
+func (as *Author) Update(id int64, schema *schemas.AuthorUpdate) (*schemas.Author, error) {
+	modified, err := as.repository.Update(&models.Author{
+		Id:   id,
+		Name: schema.Name,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &schemas.Author{
+		Id:          modified.Id,
+		Name:        modified.Name,
+		ActiveSince: modified.ActiveSince.Time,
 	}, nil
 }
 
@@ -68,21 +83,6 @@ func (as *Author) Delete(id int64) error {
 		return errors.New("author not found")
 	}
 	return nil
-}
-
-func (as *Author) Update(id int64, authorUpdate *schemas.AuthorUpdate) (*schemas.Author, error) {
-	modified, err := as.repository.Update(&models.Author{
-		Id:   id,
-		Name: authorUpdate.Name,
-	})
-	if err != nil {
-		return nil, err
-	}
-	return &schemas.Author{
-		Id:          modified.Id,
-		Name:        modified.Name,
-		ActiveSince: modified.ActiveSince.Time,
-	}, nil
 }
 
 func (as *Author) modelToSchema(model *models.Author) *schemas.Author {

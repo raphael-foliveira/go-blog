@@ -39,11 +39,15 @@ func (pc *Post) FindOne(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (pc *Post) Create(w http.ResponseWriter, r *http.Request) error {
-	createSchema, err := pc.parseCreate(r)
+	schema, err := pc.parseCreate(r)
 	if err != nil {
 		return res.BadRequest(w, err.Error())
 	}
-	newPost, err := pc.service.Create(createSchema)
+	err = schema.Validate()
+	if err != nil {
+		return res.BadRequest(w, err.Error())
+	}
+	newPost, err := pc.service.Create(schema)
 	if err != nil {
 		return err
 	}
@@ -55,11 +59,15 @@ func (pc *Post) Update(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		return res.BadRequest(w, err.Error())
 	}
-	updateSchema, err := pc.parseUpdate(r)
+	schema, err := pc.parseUpdate(r)
 	if err != nil {
 		return res.BadRequest(w, err.Error())
 	}
-	updatedPost, err := pc.service.Update(id, updateSchema)
+	err = schema.Validate()
+	if err != nil {
+		return res.BadRequest(w, err.Error())
+	}
+	updatedPost, err := pc.service.Update(id, schema)
 	if err != nil {
 		return err
 	}
