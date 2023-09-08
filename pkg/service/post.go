@@ -3,7 +3,6 @@ package service
 import (
 	"errors"
 	"fmt"
-	"log"
 
 	"github.com/raphael-foliveira/blog-backend/pkg/interfaces"
 	"github.com/raphael-foliveira/blog-backend/pkg/models"
@@ -71,13 +70,12 @@ func (ps *Post) Create(schema *schemas.PostCreate) (*schemas.Post, error) {
 	}, nil
 }
 
-func (ps *Post) Update(id int64, postUpdate *schemas.PostUpdate) (*schemas.Post, error) {
+func (ps *Post) Update(id int64, schema *schemas.PostUpdate) (*schemas.Post, error) {
 	updatedPost, err := ps.repository.Update(&models.Post{
 		Id:      id,
-		Title:   postUpdate.Title,
-		Content: postUpdate.Content,
+		Title:   schema.Title,
+		Content: schema.Content,
 	})
-	log.Println(postUpdate)
 	if err != nil {
 		return nil, err
 	}

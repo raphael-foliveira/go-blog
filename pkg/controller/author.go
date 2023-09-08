@@ -2,6 +2,7 @@ package controller
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 
 	"github.com/raphael-foliveira/blog-backend/pkg/res"
@@ -26,7 +27,10 @@ func (ac *Author) Find(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (ac *Author) FindOne(w http.ResponseWriter, r *http.Request) error {
-	id := parseId(w, r)
+	id, err := parseId(r)
+	if err != nil {
+		return res.New(w).BadRequestError(err.Error())
+	}
 	author, err := ac.service.FindOne(id)
 	if err != nil {
 		return res.New(w).NotFoundError("author not found")
@@ -35,7 +39,14 @@ func (ac *Author) FindOne(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (ac *Author) Create(w http.ResponseWriter, r *http.Request) error {
-	schema := ac.parseCreate(w, r)
+	schema, err := ac.parseCreate(r)
+	if err != nil {
+		return res.New(w).BadRequestError(err.Error())
+	}
+	err = schema.Validate()
+	if err != nil {
+		return res.New(w).BadRequestError(err.Error())
+	}
 	newAuthor, err := ac.service.Create(schema)
 	if err != nil {
 		return err
@@ -44,12 +55,22 @@ func (ac *Author) Create(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (ac *Author) Update(w http.ResponseWriter, r *http.Request) error {
-	id := parseId(w, r)
-	_, err := ac.service.FindOne(id)
+	id, err := parseId(r)
+	if err != nil {
+		return res.New(w).BadRequestError(err.Error())
+	}
+	_, err = ac.service.FindOne(id)
 	if err != nil {
 		return res.New(w).NotFoundError("author not found")
 	}
-	schema := ac.parseUpdate(w, r)
+	schema, err := ac.parseUpdate(r)
+	if err != nil {
+		return res.New(w).BadRequestError(err.Error())
+	}
+	err = schema.Validate()
+	if err != nil {
+		return res.New(w).BadRequestError(err.Error())
+	}
 	updatedAuthor, err := ac.service.Update(id, schema)
 	if err != nil {
 		return err
@@ -58,30 +79,33 @@ func (ac *Author) Update(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (ac *Author) Delete(w http.ResponseWriter, r *http.Request) error {
-	id := parseId(w, r)
-	err := ac.service.Delete(id)
+	id, err := parseId(r)
+	if err != nil {
+		return res.New(w).BadRequestError(err.Error())
+	}
+	err = ac.service.Delete(id)
 	if err != nil {
 		return err
 	}
 	return res.SendStatus(w, http.StatusNoContent)
 }
 
-func (ac *Author) parseCreate(w http.ResponseWriter, r *http.Request) *schemas.AuthorCreate {
+func (ac *Author) parseCreate(r *http.Request) (*schemas.AuthorCreate, error) {
 	defer r.Body.Close()
 	schema := new(schemas.AuthorCreate)
 	err := json.NewDecoder(r.Body).Decode(schema)
 	if err != nil {
-		res.New(w).BadRequestError(err.Error())
+		return nil, errors.New("error parsing request body")
 	}
-	return schema
+	return schema, nil
 }
 
-func (ac *Author) parseUpdate(w http.ResponseWriter, r *http.Request) *schemas.AuthorUpdate {
+func (ac *Author) parseUpdate(r *http.Request) (*schemas.AuthorUpdate, error) {
 	defer r.Body.Close()
 	schema := new(schemas.AuthorUpdate)
 	err := json.NewDecoder(r.Body).Decode(schema)
 	if err != nil {
-		res.New(w).BadRequestError(err.Error())
+		return nil, errors.New("error parsing request body")
 	}
-	return schema
+	return schema, nil
 }
