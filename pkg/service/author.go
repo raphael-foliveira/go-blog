@@ -38,7 +38,9 @@ func (as *Author) FindOne(id int64) (*schemas.AuthorDetail, error) {
 		return nil, err
 	}
 	posts, err := as.postRepository.Find(fmt.Sprintf("author_id = %v", author.Id))
-
+	if err != nil {
+		return nil, err
+	}
 	return as.modelToSchemaDetail(author, posts), nil
 }
 
