@@ -12,8 +12,7 @@ type AuthorCreate struct {
 func (ac *AuthorCreate) Validate() error {
 	if ac.Name == "" {
 		return errors.New("name cannot be empty")
-	}
-	if len(ac.Name) < 3 {
+	} else if len(ac.Name) < 3 {
 		return errors.New("name should at least 3 characters long")
 	}
 	return nil
@@ -26,8 +25,7 @@ type AuthorUpdate struct {
 func (au *AuthorUpdate) Validate() error {
 	if au.Name == "" {
 		return errors.New("name cannot be empty")
-	}
-	if len(au.Name) < 3 {
+	} else if len(au.Name) < 3 {
 		return errors.New("name should at least 3 characters long")
 	}
 	return nil

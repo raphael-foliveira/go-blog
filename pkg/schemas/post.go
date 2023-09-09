@@ -14,14 +14,12 @@ type PostCreate struct {
 func (pc *PostCreate) Validate() error {
 	if pc.Title == "" {
 		return errors.New("post title cannot be empty")
-	}
-	if len(pc.Title) < 3 {
+	} else if len(pc.Title) < 3 {
 		return errors.New("post title should be at least 3 characters long")
 	}
 	if pc.Content == "" {
 		return errors.New("post content cannot be empty")
-	}
-	if len(pc.Content) < 10 {
+	} else if len(pc.Content) < 10 {
 		return errors.New("post content should be at least 10 characters long")
 	}
 	if pc.AuthorId == 0 {
@@ -38,14 +36,12 @@ type PostUpdate struct {
 func (pu *PostUpdate) Validate() error {
 	if pu.Title == "" {
 		return errors.New("post title cannot be empty")
-	}
-	if len(pu.Title) < 3 {
+	} else if len(pu.Title) < 3 {
 		return errors.New("post title should be at least 3 characters long")
 	}
 	if pu.Content == "" {
 		return errors.New("post content cannot be empty")
-	}
-	if len(pu.Content) < 10 {
+	} else if len(pu.Content) < 10 {
 		return errors.New("post content should be at least 10 characters long")
 	}
 	return nil
