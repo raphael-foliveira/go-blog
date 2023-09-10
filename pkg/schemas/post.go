@@ -1,7 +1,6 @@
 package schemas
 
 import (
-	"errors"
 	"time"
 )
 
@@ -11,23 +10,28 @@ type PostCreate struct {
 	AuthorId int64  `json:"author_id"`
 }
 
-func (pc *PostCreate) Validate() error {
+func (pc *PostCreate) Validate() (map[string][]string, bool) {
+	title := []string{}
+	content := []string{}
+	authorId := []string{}
 	if pc.Title == "" {
-		return errors.New("post title cannot be empty")
-	}
-	if len(pc.Title) < 3 {
-		return errors.New("post title should be at least 3 characters long")
+		title = append(title, "post title cannot be empty")
+	} else if len(pc.Title) < 3 {
+		title = append(title, "post title should be at least 3 characters long")
 	}
 	if pc.Content == "" {
-		return errors.New("post content cannot be empty")
-	}
-	if len(pc.Content) < 10 {
-		return errors.New("post content should be at least 10 characters long")
+		content = append(content, "post content cannot be empty")
+	} else if len(pc.Content) < 10 {
+		content = append(content, "post content should be at least 10 characters long")
 	}
 	if pc.AuthorId == 0 {
-		return errors.New("author_id field cannot be empty")
+		authorId = append(authorId, "author_id field cannot be empty")
 	}
-	return nil
+	return map[string][]string{
+		"title":     title,
+		"content":   content,
+		"author_id": authorId,
+	}, len(title) > 0 || len(content) > 0 || len(authorId) > 0
 }
 
 type PostUpdate struct {
@@ -35,20 +39,23 @@ type PostUpdate struct {
 	Content string `json:"content"`
 }
 
-func (pu *PostUpdate) Validate() error {
+func (pu *PostUpdate) Validate() (map[string][]string, bool) {
+	title := []string{}
+	content := []string{}
 	if pu.Title == "" {
-		return errors.New("post title cannot be empty")
-	}
-	if len(pu.Title) < 3 {
-		return errors.New("post title should be at least 3 characters long")
+		title = append(title, "post title cannot be empty")
+	} else if len(pu.Title) < 3 {
+		title = append(title, "post title should be at least 3 characters long")
 	}
 	if pu.Content == "" {
-		return errors.New("post content cannot be empty")
+		content = append(content, "post content cannot be empty")
+	} else if len(pu.Content) < 10 {
+		content = append(content, "post content should be at least 10 characters long")
 	}
-	if len(pu.Content) < 10 {
-		return errors.New("post content should be at least 10 characters long")
-	}
-	return nil
+	return map[string][]string{
+		"title":   title,
+		"content": content,
+	}, len(title) > 0 || len(content) > 0
 }
 
 type Post struct {

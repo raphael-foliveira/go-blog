@@ -43,9 +43,9 @@ func (pc *Post) Create(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		return res.New(w).BadRequestError(err.Error())
 	}
-	err = schema.Validate()
-	if err != nil {
-		return res.New(w).BadRequestError(err.Error())
+	errMap, hasErr := schema.Validate()
+	if hasErr {
+		return res.New(w).Status(http.StatusBadRequest).JSON(errMap)
 	}
 	newPost, err := pc.service.Create(schema)
 	if err != nil {
@@ -63,9 +63,9 @@ func (pc *Post) Update(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		return res.New(w).BadRequestError(err.Error())
 	}
-	err = schema.Validate()
-	if err != nil {
-		return res.New(w).BadRequestError(err.Error())
+	errMap, hasErr := schema.Validate()
+	if hasErr {
+		return res.New(w).Status(http.StatusBadRequest).JSON(errMap)
 	}
 	updatedPost, err := pc.service.Update(id, schema)
 	if err != nil {

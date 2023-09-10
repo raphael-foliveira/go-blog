@@ -1,7 +1,6 @@
 package schemas
 
 import (
-	"errors"
 	"time"
 )
 
@@ -9,28 +8,32 @@ type AuthorCreate struct {
 	Name string `json:"name"`
 }
 
-func (ac *AuthorCreate) Validate() error {
+func (ac *AuthorCreate) Validate() (map[string][]string, bool) {
+	name := []string{}
 	if ac.Name == "" {
-		return errors.New("name cannot be empty")
+		name = append(name, "name cannot be empty")
+	} else if len(ac.Name) < 3 {
+		name = append(name, "name should at least 3 characters long")
 	}
-	if len(ac.Name) < 3 {
-		return errors.New("name should at least 3 characters long")
-	}
-	return nil
+	return map[string][]string{
+		"name": name,
+	}, len(name) > 0
 }
 
 type AuthorUpdate struct {
 	Name string `json:"name"`
 }
 
-func (au *AuthorUpdate) Validate() error {
+func (au *AuthorUpdate) Validate() (map[string][]string, bool) {
+	name := []string{}
 	if au.Name == "" {
-		return errors.New("name cannot be empty")
+		name = append(name, "name cannot be empty")
+	} else if len(au.Name) < 3 {
+		name = append(name, "name should at least 3 characters long")
 	}
-	if len(au.Name) < 3 {
-		return errors.New("name should at least 3 characters long")
-	}
-	return nil
+	return map[string][]string{
+		"name": name,
+	}, len(name) > 0
 }
 
 type Author struct {
