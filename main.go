@@ -1,8 +1,6 @@
 package main
 
 import (
-	"log"
-
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
@@ -26,7 +24,6 @@ func main() {
 }
 
 func attachMiddleware(r *chi.Mux) {
-	log.Println("attaching middleware")
 	r.Use(cors.Handler(cors.Options{
 		AllowedOrigins: []string{"*"},
 		AllowedMethods: []string{"*"},
