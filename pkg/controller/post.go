@@ -24,7 +24,7 @@ func (pc *Post) Find(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		return err
 	}
-	return res.New(w, http.StatusOK, posts)
+	return res.Send(w, http.StatusOK, posts)
 }
 
 func (pc *Post) FindOne(w http.ResponseWriter, r *http.Request) error {
@@ -36,7 +36,7 @@ func (pc *Post) FindOne(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		return err
 	}
-	return res.New(w, http.StatusOK, post)
+	return res.Send(w, http.StatusOK, post)
 }
 
 func (pc *Post) Create(w http.ResponseWriter, r *http.Request) error {
@@ -52,7 +52,7 @@ func (pc *Post) Create(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		return err
 	}
-	return res.New(w, http.StatusCreated, newPost)
+	return res.Send(w, http.StatusCreated, newPost)
 }
 
 func (pc *Post) Update(w http.ResponseWriter, r *http.Request) error {
@@ -72,7 +72,7 @@ func (pc *Post) Update(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		return err
 	}
-	return res.New(w, http.StatusOK, updatedPost)
+	return res.Send(w, http.StatusOK, updatedPost)
 }
 
 func (pc *Post) Delete(w http.ResponseWriter, r *http.Request) error {

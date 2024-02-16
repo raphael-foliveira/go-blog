@@ -23,7 +23,7 @@ func (ac *Author) Find(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		return err
 	}
-	return res.New(w, http.StatusOK, authors)
+	return res.Send(w, http.StatusOK, authors)
 }
 
 func (ac *Author) FindOne(w http.ResponseWriter, r *http.Request) error {
@@ -35,7 +35,7 @@ func (ac *Author) FindOne(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		return err
 	}
-	return res.New(w, http.StatusOK, author)
+	return res.Send(w, http.StatusOK, author)
 }
 
 func (ac *Author) Create(w http.ResponseWriter, r *http.Request) error {
@@ -51,7 +51,7 @@ func (ac *Author) Create(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		return err
 	}
-	return res.New(w, http.StatusCreated, newAuthor)
+	return res.Send(w, http.StatusCreated, newAuthor)
 }
 
 func (ac *Author) Update(w http.ResponseWriter, r *http.Request) error {
@@ -69,13 +69,13 @@ func (ac *Author) Update(w http.ResponseWriter, r *http.Request) error {
 	}
 	errMap, hasErr := schema.Validate()
 	if hasErr {
-		return res.New(w, http.StatusBadRequest, errMap)
+		return res.Send(w, http.StatusBadRequest, errMap)
 	}
 	updatedAuthor, err := ac.service.Update(id, schema)
 	if err != nil {
 		return err
 	}
-	return res.New(w, http.StatusOK, updatedAuthor)
+	return res.Send(w, http.StatusOK, updatedAuthor)
 }
 
 func (ac *Author) Delete(w http.ResponseWriter, r *http.Request) error {
